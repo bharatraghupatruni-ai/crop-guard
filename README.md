@@ -1,10 +1,12 @@
 # CropGuard AI
 
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-crop--guard--liart.vercel.app-22c55e?style=flat-square&logo=vercel)](https://crop-guard-liart.vercel.app)
+[![Live Demo](https://img.shields.io/badge/🚀%20Live%20Demo-crop--guard--liart.vercel.app-22c55e?style=for-the-badge&logo=vercel)](https://crop-guard-liart.vercel.app/login)
 [![GitHub](https://img.shields.io/badge/GitHub-bharatraghupatruni--ai%2Fcrop--guard-181717?style=flat-square&logo=github)](https://github.com/bharatraghupatruni-ai/crop-guard)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.111-009688?style=flat-square&logo=fastapi)](https://fastapi.tiangolo.com)
 [![React](https://img.shields.io/badge/React-18-61DAFB?style=flat-square&logo=react)](https://react.dev)
 [![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-47A248?style=flat-square&logo=mongodb)](https://mongodb.com)
+
+🔗 **Live Deployment:** **[https://crop-guard-liart.vercel.app/login](https://crop-guard-liart.vercel.app/login)**
 
 > **CropGuard AI** is an AI-powered crop disease detection and agricultural decision-support platform built during an AI Engineer internship at Symbiosys Technologies, Visakhapatnam. It combines multimodal vision AI, ChromaDB vector knowledge retrieval, weather intelligence, and a modern full-stack architecture to help farmers detect and respond to crop diseases in real time.
 
@@ -323,12 +325,13 @@ See [`backend/.env.example`](backend/.env.example) for a full annotated template
 
 ## 🌐 Deployment
 
-### Live
+### Live Application
 
-| Service | URL |
+| Service | Deployment URL |
 |---|---|
-| **Frontend** | https://crop-guard-liart.vercel.app |
-| **API Docs** | https://crop-guard-liart.vercel.app *(backend connected via Vercel)* |
+| **Live Web App (Login)** | **[https://crop-guard-liart.vercel.app/login](https://crop-guard-liart.vercel.app/login)** |
+| **Frontend Production** | **[https://crop-guard-liart.vercel.app](https://crop-guard-liart.vercel.app)** |
+| **API Endpoints** | Connected via Vercel proxy to FastAPI backend (`/api/v1`) |
 
 > **Note:** AI functionality requires properly configured environment variables (`GEMINI_API_KEY`, `GROQ_API_KEY`, `OPENWEATHER_API_KEY`, `MONGO_URL`) on the deployment platform.
 
