@@ -1,6 +1,16 @@
 import axios from 'axios'
 
-const api = axios.create({ baseURL: '/api/v1', timeout: 30000 })
+// Dynamic API Base URL — uses VITE_API_URL if set in Vercel / .env, otherwise defaults to relative /api/v1
+const getBaseUrl = () => {
+  const envUrl = import.meta.env.VITE_API_URL
+  if (envUrl && typeof envUrl === 'string' && envUrl.trim()) {
+    const cleanUrl = envUrl.trim().replace(/\/+$/, '')
+    return cleanUrl.endsWith('/api/v1') ? cleanUrl : `${cleanUrl}/api/v1`
+  }
+  return '/api/v1'
+}
+
+const api = axios.create({ baseURL: getBaseUrl(), timeout: 30000 })
 
 api.interceptors.request.use(cfg => {
   const token = localStorage.getItem('cg_token')
@@ -42,7 +52,13 @@ export const scansApi = {
   get:          id => api.get(`/scans/${id}`),
   updateStatus: (id,s) => api.patch(`/scans/${id}/status`, { status:s }),
   delete:       id => api.delete(`/scans/${id}`),
-  imageUrl:     f  => `/uploads/${f}`,
+  imageUrl:     f  => {
+    if (!f) return ''
+    if (f.startsWith('http://') || f.startsWith('https://')) return f
+    const envUrl = import.meta.env.VITE_API_URL
+    const base = (envUrl && typeof envUrl === 'string' && envUrl.trim()) ? envUrl.trim().replace(/\/+$/, '') : ''
+    return `${base}/uploads/${f}`
+  },
   research: (file, crop='Unknown', language='en') => {
     const f = new FormData()
     f.append('image', file); f.append('crop', crop); f.append('language', language)
