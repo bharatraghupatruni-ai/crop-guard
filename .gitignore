@@ -2,6 +2,7 @@
 .env
 .env.local
 .env.production
+.env.staging
 backend/.env
 frontend/.env
 
@@ -9,18 +10,24 @@ frontend/.env
 __pycache__/
 *.pyc
 *.pyo
+*.pyd
 *.egg-info/
 dist/
 build/
 .venv/
 venv/
+env/
 *.h5
 *.pkl
 *.keras
 
-# ML / Dataset (can be large)
+# ML / Dataset (large files)
 backend/models/
 backend/dataset/
+backend/ml/models/
+
+# ChromaDB persistent vector store (auto-rebuilt on startup)
+backend/app/services/.chroma_db/
 
 # Kaggle credentials
 .kaggle/kaggle.json
@@ -34,6 +41,22 @@ frontend/.vite/
 backend/uploads/*
 !backend/uploads/.gitkeep
 
+# Logs
+*.log
+logs/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
 # OS
 .DS_Store
 Thumbs.db
+desktop.ini
+
+# Temporary / debug
+*.tmp
+*.bak
+scratch/

@@ -14,6 +14,9 @@ from app.routers import auth, users, scans, treatments, weather, analytics, admi
 async def lifespan(app: FastAPI):
     print("[CropGuard AI v3] Starting (MongoDB)...")
     await init_db()
+    # Pre-warm ChromaDB RAG vector index in the background (non-blocking)
+    from app.services.rag import warm_up as rag_warm_up
+    rag_warm_up()
     yield
     print("[CropGuard AI] Shutting down")
 

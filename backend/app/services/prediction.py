@@ -119,6 +119,7 @@ Examine this {crop} leaf image for disease symptoms.
 Possible diseases/states for {crop}:
 {diseases_formatted}
 
+{rag_context_section}
 Identify the disease and reply ONLY with a valid JSON matching this schema:
 {{
   "most_likely_disease": "exact disease name from the list",
@@ -155,6 +156,28 @@ Identify the disease and reply ONLY with a valid JSON matching this schema:
   "clarification_questions": ["questions", "to", "ask", "the", "farmer", "for", "higher", "certainty"],
   "additional_images_needed": ["what", "further", "photos", "to", "take"]
 }}"""
+
+
+def _build_rag_context_section(crop: str) -> str:
+    """
+    Query ChromaDB RAG for the most relevant agricultural knowledge for this crop.
+    Returns a formatted prompt section, or an empty string if RAG is unavailable.
+    """
+    try:
+        from app.services.rag import retrieve_knowledge
+        # Pre-seed retrieval with crop name as base query (symptoms unknown at prompt time)
+        result = retrieve_knowledge(disease_name=crop, crop=crop, symptoms=None)
+        if result.get("context"):
+            source_label = "ChromaDB Vector Retrieval" if result["source"] == "chromadb" else "Knowledge Base"
+            return (
+                f"## Verified Agricultural Reference ({source_label})\n"
+                f"The following verified knowledge has been retrieved to ground your diagnosis:\n\n"
+                f"{result['context']}\n\n"
+                f"Use this reference to support — but do not override — your visual analysis.\n\n"
+            )
+    except Exception as exc:
+        print(f"[RAG] Context retrieval skipped: {exc}")
+    return ""
 
 DEFAULT_CLINICAL_REPORT = {
     "most_likely_disease": "Healthy",
@@ -208,9 +231,16 @@ async def _gemini_predict(image_bytes: bytes, crop: str, model_name: str) -> dic
     import PIL.Image, io
     disease_list = get_diseases_for_crop(crop)
     diseases_formatted = "\n".join(f"- {d}" for d in disease_list)
-    
-    prompt = CLINICAL_PATHOLOGY_PROMPT.format(crop=crop, diseases_formatted=diseases_formatted)
-    
+
+    # Retrieve ChromaDB RAG context to ground the diagnosis in verified knowledge
+    rag_context_section = _build_rag_context_section(crop)
+
+    prompt = CLINICAL_PATHOLOGY_PROMPT.format(
+        crop=crop,
+        diseases_formatted=diseases_formatted,
+        rag_context_section=rag_context_section,
+    )
+
     image = PIL.Image.open(io.BytesIO(image_bytes))
     if image.mode not in ("RGB", "L"):
         image = image.convert("RGB")
@@ -233,8 +263,15 @@ async def _groq_predict(image_bytes: bytes, crop: str) -> dict:
     
     disease_list = get_diseases_for_crop(crop)
     diseases_formatted = "\n".join(f"- {d}" for d in disease_list)
-    
-    prompt = CLINICAL_PATHOLOGY_PROMPT.format(crop=crop, diseases_formatted=diseases_formatted)
+
+    # Retrieve ChromaDB RAG context
+    rag_context_section = _build_rag_context_section(crop)
+
+    prompt = CLINICAL_PATHOLOGY_PROMPT.format(
+        crop=crop,
+        diseases_formatted=diseases_formatted,
+        rag_context_section=rag_context_section,
+    )
     b64 = base64.b64encode(image_bytes).decode("utf-8")
     client = Groq(api_key=settings.GROQ_API_KEY)
     loop = asyncio.get_running_loop()
